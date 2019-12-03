@@ -15,7 +15,8 @@
     "version": "0.1.0a0",
     "entry_points": {
         "aiida.data": [
-            "ce = aiida_ce.data:DiffParameters"
+            "ce = aiida_ce.data:DiffParameters",
+            "ce.StructureSet = aiida_ce.data.structure_set:StructureSet"
         ],
         "aiida.calculations": [
             "ce = aiida_ce.calculations:DiffCalculation"
@@ -33,7 +34,9 @@
     "install_requires": [
         "aiida-core>=1.0.0,<2.0.0",
         "six",
-        "voluptuous"
+        "voluptuous",
+        "icet",
+        "ase"
     ],
     "extras_require": {
         "testing": [
