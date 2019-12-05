@@ -33,7 +33,7 @@ class StructureSet(ArrayData):
 
     def set_collection(self, elements, nframes, frame_size, cells, positions, atomic_numbers, ids=None, energies=None):
         r"""
-        Store the collection, after checking that types and dimensions
+        Store the collection, afteStructureSet.from_raws(cells, positions, atomic_numbers, nframes)r checking that types and dimensions
         are correct.
 
         This is the main method to initialize the object, all the arrays
@@ -97,6 +97,24 @@ class StructureSet(ArrayData):
             self.set_array('indices', ids)
         else:  # use consecutive sequence if not given
             self.set_array('indices', numpy.arange(len(nframes)))
+
+    def from_raws(self, cells, positions, atomic_numbers, nframes):
+        """
+        A simple cell of set_collection
+
+        All param is two dimensional array needed to reshape.
+        :param:
+        """
+        number_of_structures = len(nframes)
+        number_of_frames = int(sum(nframes))
+        frame_size = int(len(atomic_numbers) / number_of_frames)
+        elements = set(atomic_numbers)
+
+        cells = cells.reshape([number_of_structures, 3, 3])
+        positions = positions.reshape([number_of_frames, frame_size, 3])
+        atomic_numbers = atomic_numbers.reshape([number_of_frames, frame_size])
+        return self.set_collection(elements, nframes, frame_size, cells, positions, atomic_numbers)
+
 
     @property
     def size(self):

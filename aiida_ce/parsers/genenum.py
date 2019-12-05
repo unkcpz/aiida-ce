@@ -1,5 +1,6 @@
+from aiida.engine import ExitCode
 from aiida.parsers.parser import Parser
-from aiida.plugins import CalculationFactory
+from aiida.plugins import CalculationFactory, DataFactory
 
 EnumCalculation = CalculationFactory('ce.genenum')
 
@@ -30,6 +31,8 @@ class EnumParser(Parser):
         import numpy
         from aiida.orm import Int
 
+        StructureSet = DataFactory('ce.structures')
+
         # Check that folder content is as expected
         output_filename = self.node.get_option('output_filename')
 
@@ -43,5 +46,19 @@ class EnumParser(Parser):
         # add output node
         self.logger.info("Parsing coordinates.raw, cells.raw, atomic_numbers.raw, nframes.raw")
         with self.retrieved.open('cells.raw', 'rb') as handle:
-            arr = numpy.loadtxt(handle)
-        self.out('arr_len', Int(len(arr)))
+            cells = numpy.loadtxt(handle)
+        with self.retrieved.open('coordinates.raw', 'rb') as handle:
+            positions = numpy.loadtxt(handle)
+        with self.retrieved.open('atomic_numbers.raw', 'rb') as handle:
+            atomic_numbers = numpy.loadtxt(handle)
+        with self.retrieved.open('nframes.raw', 'rb') as handle:
+            nframes = numpy.loadtxt(handle)
+
+        out = StructureSet()
+        out.from_raws(cells,
+                    positions,
+                    atomic_numbers,
+                    nframes)
+        self.out('enumerate_structures', out)
+
+        return ExitCode(0)

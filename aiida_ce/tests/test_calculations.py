@@ -32,6 +32,7 @@ def test_enum_process(ce_enum_code):
     }
 
     result = run(CalculationFactory('ce.genenum'), **inputs)
+    # import pdb; pdb.set_trace()
 
 
 
