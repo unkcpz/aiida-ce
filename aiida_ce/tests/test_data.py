@@ -13,7 +13,7 @@ from icet.tools import enumerate_structures
 
 import numpy
 
-StructureSet = DataFactory('ce.StructureSet')
+StructureSet = DataFactory('ce.structures')
 
 def create_pdau_bcc_structurelist():
     from ase.build import bulk
@@ -77,18 +77,18 @@ class TestStructureSet(PluginTestCase):
 
         self.structure_set_bcc = StructureSet(structurelist=aiida_structurelist)
 
-    def test_spinel_structue_set(self):
-        spinel_list = create_spinel_structurelist()
-        structureset_spinel = StructureSet(structurelist=spinel_list)
-
-        got_length = structureset_spinel.length
-        got_size = structureset_spinel.size
-
-        expected_length = 78
-        expected_size = [14]*3 + [28]*75
-
-        self.assertEqual(got_length, expected_length)
-        self.assertEqual(got_size, expected_size)
+    # def test_spinel_structue_set(self):
+    #     spinel_list = create_spinel_structurelist()
+    #     structureset_spinel = StructureSet(structurelist=spinel_list)
+    #
+    #     got_length = structureset_spinel.length
+    #     got_size = structureset_spinel.size
+    #
+    #     expected_length = 78
+    #     expected_size = [14]*3 + [28]*75
+    #
+    #     self.assertEqual(got_length, expected_length)
+    #     self.assertEqual(got_size, expected_size)
 
     def test_init_from_ase_structurelist(self):
         structure_set_got = StructureSet(structurelist=self.ase_structurelist)

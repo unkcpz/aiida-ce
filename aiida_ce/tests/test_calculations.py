@@ -7,6 +7,33 @@ from __future__ import absolute_import
 import os
 from aiida_ce import tests
 
+def test_enum_process(ce_enum_code):
+    from aiida.plugins import DataFactory, CalculationFactory
+    from aiida.engine import run
+    from aiida.orm import StructureData, List, Int
+
+    from ase.build import bulk
+    prim = bulk('Ag')
+    structure = StructureData(ase=prim)
+    chemical_symbols = List(list=[['Au', 'Pd']])
+
+    # set up calculation
+    inputs = {
+        'code': ce_enum_code,
+        'structure': structure,
+        'chemical_symbols': chemical_symbols,
+        'min_volume': Int(1),
+        'max_volume': Int(4),
+        'metadata': {
+            'options': {
+                'max_wallclock_seconds': 30
+            },
+        },
+    }
+
+    result = run(CalculationFactory('ce.genenum'), **inputs)
+
+
 
 def test_process(ce_code):
     # """Test running a calculation

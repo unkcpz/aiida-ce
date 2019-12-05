@@ -3,9 +3,12 @@ import json
 import sys
 import os
 import numpy
+import time
 
 from icet.tools import enumerate_structures
 from ase.atoms import Atoms
+
+start_time = time.time()
 
 cwd = os.getcwd()
 
@@ -55,3 +58,9 @@ atomic_number_raw.close()
 
 with open(os.path.join(cwd, 'nframes.raw'), 'w') as f:
     numpy.savetxt(f, numpy.array(nframes), fmt='%d')
+
+print("==============================================")
+print("Done")
+print("==============================================")
+print("Time elapse: {:} seconds", time.time()-start_time)
+# TODO: writing the input info and record the running step info
