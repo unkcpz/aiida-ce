@@ -93,6 +93,25 @@ class TestStructureSet(PluginTestCase):
     def test_init_from_ase_structurelist(self):
         structure_set_got = StructureSet(structurelist=self.ase_structurelist)
 
+    def test_from_raws(self):
+        structure_set_got = StructureSet(structurelist=self.ase_structurelist)
+        cells = structure_set_got.get_cells()
+        positions = structure_set_got.get_positions()
+        atomic_numbers = structure_set_got.get_atomic_numbers()
+        nframes = structure_set_got.get_nframes()
+
+        raw_cells = cells.reshape([-1, 3])
+        raw_positions = positions.reshape([-1, 3])
+        raw_atomic_numbers = atomic_numbers.reshape([-1])
+        raw_nframs = nframes
+
+        got = StructureSet()
+        got.from_raws(raw_cells, raw_positions, raw_atomic_numbers, raw_nframs)
+        numpy.testing.assert_array_equal(got.get_cells(), cells)
+        numpy.testing.assert_array_equal(got.get_positions(), positions)
+        numpy.testing.assert_array_equal(got.get_atomic_numbers(), atomic_numbers)
+        numpy.testing.assert_array_equal(got.get_nframes(), nframes)
+
     def test_normal_operation(self):
         clone_set = self.structure_set_bcc.clone()
         clone_set.store()

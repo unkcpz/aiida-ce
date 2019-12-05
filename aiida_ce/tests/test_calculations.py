@@ -1,16 +1,13 @@
 """ Tests for calculations
-
 """
-from __future__ import print_function
-from __future__ import absolute_import
-
-import os
-from aiida_ce import tests
+import numpy
 
 def test_enum_process(ce_enum_code):
     from aiida.plugins import DataFactory, CalculationFactory
     from aiida.engine import run
     from aiida.orm import StructureData, List, Int
+
+    StructureSet = DataFactory('ce.structures')
 
     from ase.build import bulk
     prim = bulk('Ag')
@@ -32,41 +29,11 @@ def test_enum_process(ce_enum_code):
     }
 
     result = run(CalculationFactory('ce.genenum'), **inputs)
+    structures = result['enumerate_structures']
+    structure0 = structures.get_structure(0).get_ase()
 
+    assert numpy.allclose(structure0.cell, prim.cell)
+    assert numpy.allclose(structure0.positions, prim.positions)
+    assert isinstance(structures, StructureSet)
 
-
-def test_process(ce_code):
-    # """Test running a calculation
-    # note this does not test that the expected outputs are created of output parsing"""
-    # from aiida.plugins import DataFactory, CalculationFactory
-    # from aiida.engine import run
-    #
-    # # Prepare input parameters
-    # DiffParameters = DataFactory('ce')
-    # parameters = DiffParameters({'ignore-case': True})
-    #
-    # from aiida.orm import SinglefileData
-    # file1 = SinglefileData(
-    #     file=os.path.join(tests.TEST_DIR, "input_files", 'file1.txt'))
-    # file2 = SinglefileData(
-    #     file=os.path.join(tests.TEST_DIR, "input_files", 'file2.txt'))
-    #
-    # # set up calculation
-    # inputs = {
-    #     'code': ce_code,
-    #     'parameters': parameters,
-    #     'file1': file1,
-    #     'file2': file2,
-    #     'metadata': {
-    #         'options': {
-    #             'max_wallclock_seconds': 30
-    #         },
-    #     },
-    # }
-    #
-    # result = run(CalculationFactory('ce'), **inputs)
-    # computed_diff = result['ce'].get_content()
-    #
-    # assert 'content1' in computed_diff
-    # assert 'content2' in computed_diff
-    pass
+    assert result['number_of_structures'] == 10
