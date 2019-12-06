@@ -50,9 +50,10 @@ class EnumParser(Parser):
         with self.retrieved.open('coordinates.raw', 'rb') as handle:
             positions = numpy.loadtxt(handle)
         with self.retrieved.open('atomic_numbers.raw', 'rb') as handle:
-            atomic_numbers = numpy.loadtxt(handle)
+            atomic_numbers = numpy.loadtxt(handle, dtype=int)
         with self.retrieved.open('nframes.raw', 'rb') as handle:
-            nframes = numpy.loadtxt(handle)
+            nframes = numpy.loadtxt(handle, dtype=int)
+
 
         out = StructureSet()
         out.from_raws(cells,
@@ -60,5 +61,6 @@ class EnumParser(Parser):
                     atomic_numbers,
                     nframes)
         self.out('enumerate_structures', out)
+        self.out('number_of_structures', Int(len(nframes)))
 
         return ExitCode(0)
