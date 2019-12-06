@@ -19,12 +19,12 @@
             "ce.structures = aiida_ce.data.structure_set:StructureSet"
         ],
         "aiida.calculations": [
-            "ce.genenum = aiida_ce.calculations.enumerate_structure:EnumCalculation",
-            "ce = aiida_ce.calculations:DiffCalculation"
+            "ce.genenum = aiida_ce.calculations.genenum:EnumCalculation",
+            "ce.gensqs = aiida_ce.calculations.gensqs:SqsCalculation"
         ],
         "aiida.parsers": [
             "ce.genenum = aiida_ce.parsers.genenum:EnumParser",
-            "ce = aiida_ce.parsers:DiffParser"
+            "ce.gensqs = aiida_ce.parsers.gensqs:SqsParser"
         ],
         "aiida.cmdline.data": [
             "ce = aiida_ce.cli:data_cli"

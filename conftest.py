@@ -26,3 +26,14 @@ def ce_enum_code(aiida_local_code_factory):
     code_path = os.path.join(path, 'wrappers/genenum.py')
     code = aiida_local_code_factory(executable=code_path, entry_point='ce.genenum')
     return code
+
+@pytest.fixture(scope='function')
+def ce_sqs_code(aiida_local_code_factory):
+    """Get a ce sqs code.
+    """
+    import os
+
+    path = os.getcwd()
+    code_path = os.path.join(path, 'wrappers/gensqs.py')
+    code = aiida_local_code_factory(executable=code_path, entry_point='ce.gensqs')
+    return code

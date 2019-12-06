@@ -26,6 +26,7 @@ class EnumCalculation(CalcJob):
         spec.input('min_volume', valid_type=orm.Int, default=orm.Int(1))
         spec.input('max_volume', valid_type=orm.Int, default=orm.Int(1), help='If None, no hnf cells to be considered.')
         spec.input('concentration_restrictions', required=False, valid_type=orm.Dict, help='dict indicate the concentration of each elements.')
+        
         spec.output('enumerate_structures', valid_type=StructureSet, help='enumerate structures store the outputs of the process')
         spec.output('number_of_structures', valid_type=orm.Int, help='Number of structures of enumerate structures')
 

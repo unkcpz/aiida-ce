@@ -2,11 +2,13 @@
 """
 import numpy
 
-def test_enum_process(ce_enum_code):
-    from aiida.plugins import DataFactory, CalculationFactory
-    from aiida.engine import run
-    from aiida.orm import StructureData, List, Int
+from aiida.plugins import CalculationFactory, DataFactory
+from aiida.engine import run
+from aiida.orm import StructureData, List, Int, Dict, Bool
 
+from ase.build import bulk
+
+def test_enum_process(ce_enum_code):
     StructureSet = DataFactory('ce.structures')
 
     from ase.build import bulk
@@ -37,3 +39,32 @@ def test_enum_process(ce_enum_code):
     assert isinstance(structures, StructureSet)
 
     assert result['number_of_structures'] == 10
+
+def test_sqs_process(ce_sqs_code):
+    prim = bulk('Au')
+    structure = StructureData(ase=prim)
+    chemical_symbols = List(list=[['Au', 'Pd']])
+
+    # set up calculation
+    inputs = {
+        'code': ce_sqs_code,
+        'structure': structure,
+        'chemical_symbols': chemical_symbols,
+        'pbc': List(list=[True, True, True]),
+        'cutoffs': List(list=[5.0]),
+        'max_size': Int(8),
+        'include_smaller_cells': Bool(True),
+        'n_steps': Int(2000),
+        'target_concentrations': Dict(dict={'Au': 0.5, 'Pd': 0.5}),
+        'metadata': {
+            'options': {
+                'max_wallclock_seconds': 30,
+            },
+        }
+    }
+
+    result = run(CalculationFactory('ce.gensqs'), **inputs)
+    assert 'sqs' in result
+
+    sqs = result['sqs'].get_ase()
+    assert sqs.get_number_of_atoms() == 8
