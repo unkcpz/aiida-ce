@@ -65,6 +65,7 @@ def test_sqs_process(ce_sqs_code):
 
     result = run(CalculationFactory('ce.gensqs'), **inputs)
     assert 'sqs' in result
+    assert 'cluster_space' in result
 
     sqs = result['sqs'].get_ase()
     assert sqs.get_number_of_atoms() == 8

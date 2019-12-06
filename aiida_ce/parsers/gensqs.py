@@ -9,6 +9,7 @@ from aiida.orm import Int, List, StructureData
 from ase.atoms import Atoms
 
 SqsCalculation = CalculationFactory('ce.gensqs')
+ClusterSpaceData = DataFactory('ce.cluster')
 
 class SqsParser(Parser):
     """
@@ -62,10 +63,15 @@ class SqsParser(Parser):
         self.out('sqs', sqs)
         self.out('cluster_vector', List(list=cluster_vector))
 
-        # cs = ClusterSpaceData(cell=cs_cell,
-        #                     positions=cs_positions,
-        #                     cutoffs=cs_cutoffs,
-        #                     chemical_symbols=cs_chemical_symbols)
-        # self.out('cluster_space', cs)
+        calc = self.node
+        prim = calc.inputs.structure.get_ase()
+        cs = {
+            'cell': prim.cell.tolist(),
+            'positions': prim.positions.tolist(),
+            'pbc': prim.pbc.tolist(),
+            'cutoffs': calc.inputs.cutoffs.get_list(),
+            'chemical_symbols': calc.inputs.chemical_symbols.get_list(),
+        }
+        self.out('cluster_space', ClusterSpaceData(cs))
 
         return ExitCode(0)

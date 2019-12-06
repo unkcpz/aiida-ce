@@ -3,6 +3,10 @@ from aiida.common import datastructures
 
 from aiida.orm import StructureData, Int, List, Dict, Bool
 
+from aiida.plugins import DataFactory
+
+ClusterSpaceData = DataFactory('ce.cluster')
+
 class SqsCalculation(CalcJob):
     """
     Calculation Job of gensqs.py which is a wrapper of
@@ -29,8 +33,7 @@ class SqsCalculation(CalcJob):
 
         spec.output('sqs', valid_type=StructureData, help='sqs structure')
         spec.output('cluster_vector', valid_type=List, help='cluster vector of sqs')
-        # TODO:
-        # spec.output('cluster_space', valid_type=ClusterSpaceData, help='cluster space used to generate sqs')
+        spec.output('cluster_space', valid_type=ClusterSpaceData, help='cluster space used to generate sqs')
 
         spec.exit_code(100, 'ERROR_MISSING_OUTPUT_FILES', message='Calculation did not produce all expected output files.')
 

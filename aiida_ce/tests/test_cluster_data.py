@@ -6,17 +6,14 @@ from ase.build import bulk
 
 ClusterSpaceData = DataFactory('ce.cluster')
 
-def test_():
-    pass
-
 class TestClusterSpaceData(PluginTestCase):
 
     def setUp(self):
         prim = bulk('Au')
         cs_dict = {
-            'cell': prim.cell,
-            'positions': prim.positions,
-            'pbc':prim.pbc,
+            'cell': prim.cell.tolist(),
+            'positions': prim.positions.tolist(),
+            'pbc':prim.pbc.tolist(),
             'cutoffs': [6.0, 4.0],
             'chemical_symbols': [['Au', 'Pd']]
         }
