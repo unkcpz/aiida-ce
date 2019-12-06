@@ -54,6 +54,7 @@ class EnumParser(Parser):
         with self.retrieved.open('nframes.raw', 'rb') as handle:
             nframes = numpy.loadtxt(handle, dtype=int)
 
+
         out = StructureSet()
         out.from_raws(cells,
                     positions,
