@@ -62,6 +62,6 @@ with open(os.path.join(cwd, 'nframes.raw'), 'w') as f:
 print("==============================================")
 print("Done")
 print("==============================================")
-print("Time elapse: {:} seconds", time.time()-start_time)
+print("Time elapse: {:} seconds".format(time.time()-start_time))
 # TODO: writing the input info and record the running step info
 # TODO: refactoring the wrapper pretty.

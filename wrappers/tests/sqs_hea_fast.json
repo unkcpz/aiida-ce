@@ -1,0 +1,62 @@
+{
+    "structure": {
+        "cell": [
+            [
+                0.0,
+                2.0,
+                2.0
+            ],
+            [
+                2.0,
+                0.0,
+                2.0
+            ],
+            [
+                2.0,
+                2.0,
+                0.0
+            ]
+        ],
+        "positions": [
+            [
+                0.0,
+                0.0,
+                0.0
+            ],
+            [
+                2.0,
+                2.0,
+                2.0
+            ]
+        ],
+        "pbc": [
+            true,
+            true,
+            true
+        ]
+    },
+    "cutoffs": [
+        7.0
+    ],
+    "max_size": 8,
+    "include_smaller_cells": true,
+    "n_steps": 2000,
+    "target_concentrations": {
+        "Au": 0.375,
+        "Cu": 0.0625,
+        "Pd": 0.0625,
+        "H": 0.125,
+        "V": 0.375
+    },
+    "chemical_symbols": [
+        [
+            "Au",
+            "Cu",
+            "Pd"
+        ],
+        [
+            "H",
+            "V"
+        ]
+    ]
+}
