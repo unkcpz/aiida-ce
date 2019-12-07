@@ -78,5 +78,6 @@ class SqsCalculation(CalcJob):
         param['include_smaller_cells'] = self.inputs.include_smaller_cells.value
 
         param_str = json.dumps(param, indent=4, sort_keys=True)
+        import pdb; pdb.set_trace()
         with folder.open(self.options.input_filename, 'w', encoding='utf8') as handle:
             handle.write(param_str)
