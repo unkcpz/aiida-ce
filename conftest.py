@@ -10,11 +10,15 @@ def clear_database_auto(clear_database):  # pylint: disable=unused-argument
 
 
 @pytest.fixture(scope='function')
-def ce_code(aiida_local_code_factory):
-    """Get a ce code.
+def ce_train_code(aiida_local_code_factory):
+    """Get a ce train code.
     """
-    ce_code = aiida_local_code_factory(executable='diff', entry_point='ce')
-    return ce_code
+    import os
+
+    path = os.getcwd()
+    code_path = os.path.join(path, 'wrappers/train.py')
+    code = aiida_local_code_factory(executable=code_path, entry_point='ce.train')
+    return code
 
 @pytest.fixture(scope='function')
 def ce_enum_code(aiida_local_code_factory):
@@ -25,4 +29,15 @@ def ce_enum_code(aiida_local_code_factory):
     path = os.getcwd()
     code_path = os.path.join(path, 'wrappers/genenum.py')
     code = aiida_local_code_factory(executable=code_path, entry_point='ce.genenum')
+    return code
+
+@pytest.fixture(scope='function')
+def ce_sqs_code(aiida_local_code_factory):
+    """Get a ce sqs code.
+    """
+    import os
+
+    path = os.getcwd()
+    code_path = os.path.join(path, 'wrappers/gensqs.py')
+    code = aiida_local_code_factory(executable=code_path, entry_point='ce.gensqs')
     return code

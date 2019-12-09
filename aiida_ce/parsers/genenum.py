@@ -37,7 +37,7 @@ class EnumParser(Parser):
         output_filename = self.node.get_option('output_filename')
 
         files_retrieved = self.retrieved.list_object_names()
-        files_expected = [output_filename, 'cells.raw']
+        files_expected = [output_filename, 'cells.raw', 'coordinates.raw', 'nframes.raw', 'atomic_numbers.raw']
         if not set(files_expected) <= set(files_retrieved):
             self.logger.error("Found files '{}', expected to fine '{}'".format(
                 files_retrieved, files_expected))
