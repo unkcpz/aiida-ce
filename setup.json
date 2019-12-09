@@ -2,7 +2,7 @@
     "name": "aiida-ce",
     "author": "unkcpz",
     "author_email": "morty.yu@yahoo.com",
-    "description": "Cluster Expansion",
+    "description": "AiiDA plugin for running cluster expansion using icet.",
     "url": "https://github.com/unkcpz/aiida-ce",
     "license": "MIT",
     "classifiers": [
