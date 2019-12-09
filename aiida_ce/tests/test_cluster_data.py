@@ -6,6 +6,9 @@ from ase.build import bulk
 
 ClusterSpaceData = DataFactory('ce.cluster')
 
+def test_():
+    pass
+
 class TestClusterSpaceData(PluginTestCase):
 
     def setUp(self):
@@ -21,3 +24,11 @@ class TestClusterSpaceData(PluginTestCase):
 
     def test_properties(self):
         pass
+
+    def test_dumps(self):
+        import json
+
+        got_str = self.cs.dumps()
+        data = json.loads(got_str)
+
+        self.assertEqual(json.dumps(data, indent=4, sort_keys=True), got_str)

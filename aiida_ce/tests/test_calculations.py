@@ -7,7 +7,8 @@ from aiida_ce import tests
 
 from aiida.plugins import CalculationFactory, DataFactory
 from aiida.engine import run
-from aiida.orm import StructureData, List, Int, Dict, Bool
+from aiida.orm import StructureData, List, Int, \
+                        Dict, Bool, Str
 
 from ase.build import bulk
 from ase.db import connect

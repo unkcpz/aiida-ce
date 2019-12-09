@@ -1,6 +1,7 @@
 from aiida.engine import CalcJob
 from aiida.common import datastructures
 from aiida.plugins import DataFactory
+from aiida.orm import Str, SinglefileData
 
 StructureSet = DataFactory('ce.structures')
 ClusterSpaceData = DataFactory('ce.cluster')
@@ -49,7 +50,30 @@ class TrainCalculation(CalcJob):
         # Prepare a `CalaInfo` to be returned to the engine
         calcinfo = datastructures.CalcInfo()
         calcinfo.codes_info = [codeinfo]
-        retrieve_list = ['sqs.out']
+        retrieve_list = ['model.ce']
         calcinfo.retrieve_list = retrieve_list + [self.metadata.options.output_filename]
 
         return calcinfo
+
+    def write_input_files(self, folder):
+        import json
+
+        cs = self.inputs.cluster_space
+        param_str = cs.dumps()
+        with folder.open(self.options.input_filename, 'w', encoding='utf8') as handle:
+            handle.write(param_str)
+
+        structureset = self.options.structures
+        cells = structureset.get_cells()
+        positions = structuresset.get_positionsn()
+        atomic_numbers = structureset.get_atomic_numbers()
+        natoms = structuresset.size()
+
+        with open('cells.raw', 'w') as f:
+            numpy.savetxt(cells, f)
+        with open('coordinates.raw', 'w') as f:
+            numpy.savetxt(positions, f)
+        with open('atomic_numbers.raw', 'w') as f:
+            numpy.savetxt(atomic_numbers, f, fmt='%d')
+        with open('natoms.raw', 'w') as f:
+            numpy.savetxt(natoms, f, fmt='%d')

@@ -22,11 +22,12 @@
         "aiida.calculations": [
             "ce.genenum = aiida_ce.calculations.genenum:EnumCalculation",
             "ce.gensqs = aiida_ce.calculations.gensqs:SqsCalculation",
-            "ce.train = aiida_ce.calculations.train:TrainCalculation",
+            "ce.train = aiida_ce.calculations.train:TrainCalculation"
         ],
         "aiida.parsers": [
             "ce.genenum = aiida_ce.parsers.genenum:EnumParser",
-            "ce.gensqs = aiida_ce.parsers.gensqs:SqsParser"
+            "ce.gensqs = aiida_ce.parsers.gensqs:SqsParser",
+            "ce.train = aiida_ce.parsers.train:TrainParser"
         ],
         "aiida.cmdline.data": [
             "ce = aiida_ce.cli:data_cli"
