@@ -2,19 +2,35 @@
 import time
 import sys
 import json
+import os
+import numpy
 
 from ase.atoms import Atoms
 from ase.db import connect
 from icet import (ClusterSpace, StructureContainer,
                   CrossValidationEstimator, ClusterExpansion)
 
+cwd = os.getcwd()
 # def train(sc):
 #     return ce
 
-def create_structurelist(cells, positions, atomic_numbers, nframes):
+def create_structurelist(cells, positions, atomic_numbers, natoms):
+    # inputs are numpy.ndarray
     # return a list of ase structures
-    # return ,
-    pass
+    structurelist = []
+    cnframes = numpy.cumsum(natoms) - natoms
+    for i, n in enumerate(natoms):
+        cell = cells[3*i:3*(i+1)]
+
+        idx = cnframes[i]
+        pos = positions[idx:idx+n]
+        numbers = atomic_numbers[idx:idx+n]
+
+        structure = Atoms(cell=cell, positions=pos, numbers=numbers, pbc=True)
+        structurelist.append(structure)
+
+    return structurelist
+
 
 def print_runing_info(t):
     # TODO: Add more infos
@@ -42,32 +58,31 @@ if __name__ == "__main__":
     # read cells, positions, atomic_numbers, nframes and energies
     with open(os.path.join(cwd, 'cells.raw'), 'rb') as f:
         cells = numpy.loadtxt(f)
-    with open(os.path.join(cwd, 'positiosn.raw'), 'rb') as f:
+    with open(os.path.join(cwd, 'coordinates.raw'), 'rb') as f:
         positions = numpy.loadtxt(f)
     with open(os.path.join(cwd, 'atomic_numbers.raw'), 'rb') as f:
-        atomic_numbers = numpy.loadtxt(f)
-    with open(os.path.join(cwd, 'nframes.raw'), 'rb') as f:
-        nframes = numpy.loadtxt(f)
+        atomic_numbers = numpy.loadtxt(f, dtype=int)
+    with open(os.path.join(cwd, 'natoms.raw'), 'rb') as f:
+        natoms = numpy.loadtxt(f, dtype=int)
     with open(os.path.join(cwd, 'energies.raw'), 'rb') as f:
         energies = numpy.loadtxt(f)
 
-    structurelist = create_structurelist(cells
+    structurelist = create_structurelist(cells,
                         positions,
                         atomic_numbers,
-                        nframes)
+                        natoms)
 
-    cv_list = [cs.get_cluster_vector(s) for s in structurelist]
+    cv_list = numpy.array([cs.get_cluster_vector(s) for s in structurelist])
 
     fit_method = data.get('fit_method', 'lasso')
-    # start_time = time.time()
+    start_time = time.time()
     opt = CrossValidationEstimator(fit_data=(cv_list, energies),
                                    fit_method='lasso')
     opt.validate()
     opt.train()
 
     ce = ClusterExpansion(cluster_space=cs, parameters=opt.parameters, metadata=opt.summary)
-    # ce = train(sc, fit_method)
-    ce.write('mixing_energy.ce')
-    # run_time = time.time() -  start_time
+    ce.write('model.ce')
+    run_time = time.time() -  start_time
 
     print_runing_info(run_time)
