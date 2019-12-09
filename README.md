@@ -5,48 +5,35 @@
 
 # aiida-ce
 
-Cluster Expansion
-
-This plugin is the default output of the
-[AiiDA plugin cutter](https://github.com/aiidateam/aiida-plugin-cutter),
-intended to help developers get started with their AiiDA plugins.
-
-Plugins templated using the plugin cutter
-
-* include a calculation, parser and data type as well as an example of
-  how to submit a calculation
-* include basic regression tests using the [pytest](https://docs.pytest.org/en/latest/) framework ( (submitting a calculation, ...)
-* can be directly pip-installed (and are prepared for submisson to [PyPI](https://pypi.org/)
-* include a documentation template ready for [Read the Docs](http://aiida-diff.readthedocs.io/en/latest/)
-* come with [Travis CI](https://travis-ci.org) configuration - enable it to run tests and check test coverage at every commit
-* come with pre-commit hooks that sanitize coding style and check for syntax errors - enable via `pre-commit install`
-
-For more information on how to take advantage of these features,
-see the [developer guide](https://aiida-diff.readthedocs.io/en/latest/developer_guide) of your plugin.
-
+The aiida-ce is an aiida plugin which running the cluster expansion by using [icet](https://icet.materialsmodeling.org/) a tool for the construction and sampling of alloy cluster expansions as the backend.
+The plugin was designed to provided all the functions displayed in [tutorials of icet](https://icet.materialsmodeling.org/tutorial/index.html)
 
 ## Features
 
- * Add input files using `SinglefileData`:
-   ```python
-   SinglefileData = DataFactory('singlefile')
-   inputs['file1'] = SinglefileData(file='/path/to/file1')
-   inputs['file2'] = SinglefileData(file='/path/to/file2')
-   ```
+### orm data type
+  * Structures collection for training is represented using `StructureContainer`, it can be initialize from a list of ase structures. Meanwhile, the energies of each structures can be attached to the data to constructed a training set input for `TrainCalculation`.
+  ```python
+  StructureContainer = DataFactory('ce.structures')
+  ```
 
- * Specify command line options via a python dictionary and `DiffParameters`:
-   ```python
-   d = { 'ignore-case': True }
-   DiffParameters = DataFactory('ce')
-   inputs['parameters'] = DiffParameters(dict=d)
-   ```
+  * `ClusterSpaceData` is a data type to represent the cluster information used in the cluster expansion process. Though its real data is the information of each cluster, `ClusterSpaceData` store the data by its prototype inputs(primitive structure, cutoffs, chemical symbols). The ClusterSpace is then evaluated in the time of running.
+  ```python
+  ClusterSpaceData = DataFactory('ce.cluster')
+  ```
 
- * `DiffParameters` dictionaries are validated using [voluptuous](https://github.com/alecthomas/voluptuous).
-   Find out about supported options:
-   ```python
-   DiffParameters = DataFactory('ce')
-   print(DiffParameters.schema.schema)
-   ```
+### calculation job
+Because icet is a pythonic package without the executable files, aiida-ce makes the wrappers of different functions as excutatble files.
+
+  *  structure generators: EnumCalculation, SqsCalculation
+  ```python
+  EnumCalculation = CalculationFactory('ce.genenum')
+  SqsCalculation = CalculationFactory('ce.gensqs')
+  ```
+
+  * Train the ce model. Inputs are a `StructureContainer` and a `ClusterSpaceData` and the name of fitting method. It will ouput a ce model which can then be used to predict the energies of alloy of the same type.
+  ```python
+  TrainCalculation = CalculationFactory('ce.train')
+  ```
 
 ## Installation
 
@@ -56,6 +43,7 @@ verdi quicksetup  # better to set up a new profile
 verdi plugin list aiida.calculations  # should now show your calclulation plugins
 ```
 
+You need to copy the wrappers into the path in the computer where you gonna to run the executable file.
 
 ## Usage
 
@@ -71,8 +59,13 @@ verdi process list -a  # check status of calculation
 
 The plugin also includes verdi commands to inspect its data types:
 ```shell
-verdi data ce list
-verdi data ce export <PK>
+verdi data ce structures list
+verdi data ce structures dump <PK>
+verdi data ce structures export <PK> <INDEX>
+
+verdi data ce cluster list
+verdi data ce cluster show <PK>
+verdi data ce cluster dump <PK>
 ```
 
 ## Development
@@ -95,4 +88,3 @@ MIT
 ## Contact
 
 morty.yu@yahoo.com
-
