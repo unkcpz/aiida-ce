@@ -12,26 +12,38 @@ from aiida.engine import run
 
 # get code
 computer = helpers.get_computer()
-code = helpers.get_code(entry_point='ce', computer=computer)
+code = helpers.get_code(entry_point='ce.train', computer=computer)
 
 # Prepare input parameters
-DiffParameters = DataFactory('ce')
-parameters = DiffParameters({'ignore-case': True})
+ClusterSpaceData = DataFactory('ce.cluster')
+StructureSet = DataFactory('ce.structures')
+prim = bulk('Ag')
+cs_dict = {
+    'cell': prim.cell.tolist(),
+    'positions': prim.positions.tolist(),
+    'pbc':prim.pbc.tolist(),
+    'cutoffs': [13.5, 6.0],
+    'chemical_symbols': [['Ag', 'Pd']]
+}
 
-SinglefileData = DataFactory('singlefile')
-file1 = SinglefileData(
-    file=os.path.join(tests.TEST_DIR, "input_files", 'file1.txt'))
-file2 = SinglefileData(
-    file=os.path.join(tests.TEST_DIR, "input_files", 'file2.txt'))
+cs = ClusterSpaceData(cs_dict)
 
-# set up calculation
+db_file = os.path.join(tests.TEST_DIR, "input_files", 'ref.db')
+db = connect(db_file)
+structurelist = [row.toatoms() for row in db.select('natoms<=8')]
+energies = [row.mixing_energy for row in db.select('natoms<=8')]
+structures = StructureSet(structurelist=structurelist)
+structures.set_energies(numpy.array(energies))
+
 inputs = {
-    'code': code,
-    'parameters': parameters,
-    'file1': file1,
-    'file2': file2,
+    'code': ce_train_code,
+    'structures': structures,
+    'cluster_space': cs,
+    'fit_method': Str('lasso'),
     'metadata': {
-        'description': "Test job submission with the aiida_ce plugin",
+        'options': {
+            'max_wallclock_seconds': 300,
+        },
     },
 }
 
@@ -39,6 +51,3 @@ inputs = {
 # from aiida.engine import submit
 # future = submit(CalculationFactory('ce'), **inputs)
 result = run(CalculationFactory('ce'), **inputs)
-
-computed_diff = result['ce'].get_content()
-print("Computed diff between files: \n{}".format(computed_diff))
