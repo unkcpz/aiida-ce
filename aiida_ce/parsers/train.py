@@ -21,7 +21,7 @@ class TrainParser(Parser):
         :param type node: :class:`aiida.orm.ProcessNode`
         """
         from aiida.common import exceptions
-        super(SqsParser, self).__init__(node)
+        super(TrainParser, self).__init__(node)
         if not issubclass(node.process_class, TrainCalculation):
             raise exceptions.ParsingError("Can only parse TrainCalculation")
 

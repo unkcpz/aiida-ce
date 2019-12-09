@@ -43,7 +43,7 @@ class TrainCalculation(CalcJob):
 
         # Code
         codeinfo = datastructures.CodeInfo()
-        codeinfo.cmdline_params = [self.options.input_filename, db_file]
+        codeinfo.cmdline_params = [self.options.input_filename]
         codeinfo.code_uuid = self.inputs.code.uuid
         codeinfo.stdout_name = self.metadata.options.output_filename
 
@@ -57,23 +57,28 @@ class TrainCalculation(CalcJob):
 
     def write_input_files(self, folder):
         import json
+        import numpy
 
         cs = self.inputs.cluster_space
         param_str = cs.dumps()
         with folder.open(self.options.input_filename, 'w', encoding='utf8') as handle:
             handle.write(param_str)
 
-        structureset = self.options.structures
-        cells = structureset.get_cells()
-        positions = structuresset.get_positionsn()
-        atomic_numbers = structureset.get_atomic_numbers()
-        natoms = structuresset.size()
+        structure_set = self.inputs.structures
+        cells = structure_set.get_cells()
+        positions = structure_set.get_positions()
+        atomic_numbers = structure_set.get_atomic_numbers()
+        natoms = structure_set.size
+        energies = structure_set.get_energies()
 
-        with open('cells.raw', 'w') as f:
-            numpy.savetxt(cells, f)
-        with open('coordinates.raw', 'w') as f:
-            numpy.savetxt(positions, f)
-        with open('atomic_numbers.raw', 'w') as f:
-            numpy.savetxt(atomic_numbers, f, fmt='%d')
-        with open('natoms.raw', 'w') as f:
-            numpy.savetxt(natoms, f, fmt='%d')
+        with folder.open('cells.raw', 'w', encoding='utf8') as f:
+            numpy.savetxt(f, cells.reshape([-1, 3]))
+        with folder.open('coordinates.raw', 'w', encoding='utf8') as f:
+            numpy.savetxt(f, positions.reshape([-1, 3]))
+        with folder.open('atomic_numbers.raw', 'w', encoding='utf8') as f:
+            numpy.savetxt(f, atomic_numbers.reshape([-1,1]), fmt='%d')
+        with folder.open('natoms.raw', 'w', encoding='utf8') as f:
+            numpy.savetxt(f, numpy.array(natoms), fmt='%d')
+
+        with folder.open('energies.raw', 'w', encoding='utf8') as f:
+            numpy.savetxt(f, energies)
