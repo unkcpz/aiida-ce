@@ -29,6 +29,9 @@
             "ce.gensqs = aiida_ce.parsers.gensqs:SqsParser",
             "ce.train = aiida_ce.parsers.train:TrainParser"
         ],
+        "aiida.workflows": [
+            "ce.evaluate_base = aiida_ce.workflows.evaluate_base:CeEvaluateBaseWorkChain"
+        ],
         "aiida.cmdline.data": [
             "ce = aiida_ce.cli:data_cli"
         ]
