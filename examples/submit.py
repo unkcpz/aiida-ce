@@ -21,14 +21,14 @@ prim = bulk('Ag')
 cs_dict = {
     'cell': prim.cell.tolist(),
     'positions': prim.positions.tolist(),
-    'pbc':prim.pbc.tolist(),
+    'pbc': prim.pbc.tolist(),
     'cutoffs': [13.5, 6.0],
     'chemical_symbols': [['Ag', 'Pd']]
 }
 
 cs = ClusterSpaceData(cs_dict)
 
-db_file = os.path.join(tests.TEST_DIR, "input_files", 'ref.db')
+db_file = os.path.join(tests.TEST_DIR, 'input_files', 'ref.db')
 db = connect(db_file)
 structurelist = [row.toatoms() for row in db.select('natoms<=8')]
 energies = [row.mixing_energy for row in db.select('natoms<=8')]

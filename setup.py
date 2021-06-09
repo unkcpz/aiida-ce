@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
 
 from __future__ import absolute_import
 from setuptools import setup, find_packages
@@ -13,7 +14,7 @@ if __name__ == '__main__':
         packages=find_packages(),
         # this doesn't work when placed in setup.json (something to do with str type)
         package_data={
-            "": ["*"],
+            '': ['*'],
             # TODO be more specific with package data (but the line below isn't working)
             # "tests.input_files": ["*"],
         },

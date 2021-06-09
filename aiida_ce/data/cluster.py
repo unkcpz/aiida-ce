@@ -1,56 +1,108 @@
 # -*- coding: utf-8 -*-
+"""cluster related date types"""
+from typing import List, Union
+import tempfile
 
-from icet import ClusterSpace
+from ase import Atoms
+from icet import ClusterSpace, ClusterExpansion
 
-from aiida.orm import Data
+from aiida import orm
 
-class ClusterSpaceData(Data):
 
-    def __init__(self, cs=None, **kwargs):
+class ClusterSpaceData(orm.StructureData):
+    """Data type of ClusterSpace"""
+    def __init__(self, **kwargs):
         """
-        :param cs: a defined simplified version of ClusterSpace
+        init
         """
-        super(ClusterSpaceData, self).__init__(**kwargs)
-        if cs is not None:
-            self.set_cluster_space(cs)
+        super().__init__(**kwargs)
 
-    def set_cluster_space(self, cs):
-        import numpy
+    def set(self,
+            cutoffs: List[float],
+            chemical_symbols: Union[List[str], List[List[str]]],
+            ase: Atoms = None,
+            symprec: float = 1e-5,
+            position_tolerance: float = None):
+        """set the parameters of the cluster space"""
+        if ase:
+            # set or reset ase
+            self.set_ase(ase)
 
-        self.set_attribute('cell', cs.get('cell', None))
-        self.set_attribute('positions', cs.get('positions', None))
-        self.set_attribute('pbc', cs.get('pbc', [True, True, True]))
-        self.set_attribute('cutoffs', cs.get('cutoffs', None))
-        self.set_attribute('chemical_symbols', cs.get('chemical_symbols', None))
+        self.set_attribute('cutoffs', cutoffs)
+        self.set_attribute('chemical_symbols', chemical_symbols)
+        self.set_attribute('symprec', symprec)
+        self.set_attribute('position_tolerance', position_tolerance)
 
-    def _internal_validate(self):
-        pass
+    @property
+    def _cluster_space(self):
+        """this give cluster space of icet type"""
+        ase = self.get_ase()
+        cutoffs = self.get_attribute('cutoffs')
+        chemical_symbols = self.get_attribute('chemical_symbols')
+        symprec = self.get_attribute('symprec')
+        position_tolerance = self.get_attribute('position_tolerance')
 
-    def get_cell(self):
-        return self.get_attribute('cell')
+        cs = ClusterSpace(ase, cutoffs, chemical_symbols, symprec,
+                          position_tolerance)
 
-    def get_positions(self):
-        return self.get_attribute('positions')
+        return cs
 
-    def get_pbc(self):
-        return self.get_attribute('pbc')
+    def print_overview(self):
+        """print the overview of cluster space"""
+        self._cluster_space.print_overview()
 
-    def get_chemical_symbols(self):
-        return self.get_attribute('chemical_symbols')
+    def get_noumenon(self):
+        """return the icet type cluster space"""
+        return self._cluster_space
 
-    def get_cutoffs(self):
-        return self.get_attribute('cutoffs')
+    def set_from_cluster_space(self, cluster_space):
+        """set from a icet type cluster space"""
+        ase = cluster_space.primitive_structure
+        cutoffs = cluster_space.cutoffs
+        chemical_symbols = cluster_space.chemical_symbols
+        symprec = cluster_space.symprec
+        position_tolerance = cluster_space.position_tolerance
 
-    def dumps(self):
-        import json
+        self.set(ase=ase,
+                 cutoffs=cutoffs,
+                 chemical_symbols=chemical_symbols,
+                 symprec=symprec,
+                 position_tolerance=position_tolerance)
 
-        params = dict()
-        params['structure'] = {
-            'cell': self.get_cell(),
-            'positions': self.get_positions(),
-            'pbc': self.get_pbc(),
-        }
-        params['cutoffs'] = self.get_cutoffs()
-        params['chemical_symbols'] = self.get_chemical_symbols()
 
-        return json.dumps(params, indent=4, sort_keys=True)
+class ClusterExpansionData(orm.Data):
+    """Data type of ClusterExpansion"""
+    def set(self, cluster_space, parameters, metadata=None):
+        """set cluster expansion after initial create it"""
+        ce = ClusterExpansion(cluster_space, parameters, metadata)
+
+        filename = 'stored.ce'
+        self.set_attribute('filename', filename)
+
+        tmp_file = tempfile.NamedTemporaryFile()
+        ce.write(tmp_file.name)
+        self.put_object_from_file(tmp_file.name, filename)
+
+    @property
+    def filename(self):
+        """Return the name of the file stored.
+
+        :return: the filename under which the file is stored in the repository
+        """
+        return self.get_attribute('filename')
+
+    @property
+    def _cluster_expansion(self):
+        """get the cluster expansion from store file"""
+        with self.open(self.filename, mode='rb') as handle:
+            file_abs_path = handle.name  # pylint: disable=no-member
+
+        return ClusterExpansion.read(file_abs_path)
+
+    def print_overview(self):
+        """print overview of cluster expansion"""
+        return self._cluster_expansion.print_overview()
+
+    def get_noumenon(self):
+        """get icet type cluster expansion"""
+        return self._cluster_expansion

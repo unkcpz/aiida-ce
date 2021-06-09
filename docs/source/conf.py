@@ -44,7 +44,7 @@ else:
     from aiida.manage import configuration
     from aiida.manage.manager import get_manager
     configuration.IN_RT_DOC_MODE = True
-    configuration.BACKEND = "django"
+    configuration.BACKEND = 'django'
 
     configuration.reset_config(
     )  # empty config was created when importing aiida
@@ -91,15 +91,14 @@ master_doc = 'index'
 
 # General information about the project.
 project = u'aiida-ce'
-copyright_first_year = "2019"
-copyright_owners = "unkcpz"
+copyright_first_year = '2019'
+copyright_owners = 'unkcpz'
 
 current_year = str(time.localtime().tm_year)
-copyright_year_string = current_year if current_year == copyright_first_year else "{}-{}".format(
+copyright_year_string = current_year if current_year == copyright_first_year else '{}-{}'.format(
     copyright_first_year, current_year)
 # pylint: disable=redefined-builtin
-copyright = u'{}, {}. All rights reserved'.format(copyright_year_string,
-                                                  copyright_owners)
+copyright = f'{copyright_year_string}, {copyright_owners}. All rights reserved'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
@@ -333,7 +332,7 @@ def run_apidoc(_):
 
     # See https://stackoverflow.com/a/30144019
     env = os.environ.copy()
-    env["SPHINX_APIDOC_OPTIONS"] = 'members,special-members,private-members,undoc-members,show-inheritance'
+    env['SPHINX_APIDOC_OPTIONS'] = 'members,special-members,private-members,undoc-members,show-inheritance'
     subprocess.check_call([cmd_path] + options, env=env)
 
 

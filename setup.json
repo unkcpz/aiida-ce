@@ -12,61 +12,48 @@
         "Natural Language :: English",
         "Framework :: AiiDA"
     ],
-    "version": "0.1.0a0",
+    "version": "0.1.0",
     "entry_points": {
         "aiida.data": [
-            "ce = aiida_ce.data:DiffParameters",
-            "ce.structures = aiida_ce.data.structure_set:StructureSet",
-            "ce.cluster = aiida_ce.data.cluster:ClusterSpaceData"
+            "structure_db = aiida_ce.data.structure_db:StructureDbData",
+            "cluster_space = aiida_ce.data.cluster:ClusterSpaceData",
+            "cluster_expansion = aiida_ce.data.cluster:ClusterExpansionData"
         ],
         "aiida.calculations": [
-            "ce.genenum = aiida_ce.calculations.genenum:EnumCalculation",
-            "ce.gensqs = aiida_ce.calculations.gensqs:SqsCalculation",
-            "ce.train = aiida_ce.calculations.train:TrainCalculation"
+            "atat.mcsqs = aiida_ce.calculations.mcsqs:AtatMcsqsCalculation"
         ],
         "aiida.parsers": [
-            "ce.genenum = aiida_ce.parsers.genenum:EnumParser",
-            "ce.gensqs = aiida_ce.parsers.gensqs:SqsParser",
-            "ce.train = aiida_ce.parsers.train:TrainParser"
+            "atat.mcsqs = aiida_ce.parsers.mcsqs:AtatMcsqsParser"
         ],
         "aiida.workflows": [
-            "ce.evaluate_base = aiida_ce.workflows.evaluate_base:CeEvaluateBaseWorkChain"
-        ],
-        "aiida.cmdline.data": [
-            "ce = aiida_ce.cli:data_cli"
+            "construct_ce = aiida_ce.workflows.create_ce:ConstructClusterExpansion",
+            "icet.sqs = aiida_ce.workflows.sqs:SqsWorkChain"
         ]
     },
     "include_package_data": true,
     "setup_requires": ["reentry"],
     "reentry_register": true,
     "install_requires": [
-        "aiida-core>=1.0.0,<2.0.0",
-        "six",
+        "aiida-core>=1.5.0,<2.0.0",
         "voluptuous",
         "icet",
         "ase"
     ],
     "extras_require": {
-        "testing": [
-            "pgtest==1.3.1",
-            "wheel>=0.31",
-            "coverage",
-            "pytest>=3.6.3,<5.0.0",
-            "pytest-cov>=2.6.1,<5.0.0"
+        "tests": [
+            "pgtest~=1.3",
+            "pytest~=6.0",
+            "pytest-regressions~=2.2"
         ],
         "pre-commit": [
-            "astroid==1.6.6; python_version<'3.0'",
-            "astroid==2.2.5; python_version>='3.0'",
-            "pre-commit==1.20.0",
-            "prospector==1.1.7",
-            "pylint-django<0.9; python_version<'3.0'",
-            "pylint==1.9.4; python_version<'3.0'",
-            "pylint==2.3.1; python_version>='3.0'"
+            "pre-commit~=2.2",
+            "pylint~=2.6.0"
         ],
         "docs": [
             "sphinx",
             "sphinxcontrib-contentui",
-            "sphinxcontrib-details-directive; python_version>='3.0'"
+            "sphinxcontrib-details-directive; python_version>='3.0'",
+            "sphinx-rtd-theme"
         ]
     }
 }
