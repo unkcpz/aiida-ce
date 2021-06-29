@@ -10,7 +10,13 @@
         "Intended Audience :: Science/Research",
         "License :: OSI Approved :: MIT License",
         "Natural Language :: English",
-        "Framework :: AiiDA"
+        "Framework :: AiiDA",
+        "Operating System :: POSIX :: Linux",
+        "Operating System :: MacOS :: MacOS X",
+        "Programming Language :: Python",
+        "Programming Language :: Python :: 3.7",
+        "Programming Language :: Python :: 3.8",
+        "Programming Language :: Python :: 3.9"
     ],
     "version": "0.1.0",
     "entry_points": {
@@ -35,9 +41,8 @@
     "reentry_register": true,
     "install_requires": [
         "aiida-core>=1.5.0,<2.0.0",
-        "voluptuous",
-        "icet",
-        "ase"
+        "icet~=1.4",
+        "ase~=3.21"
     ],
     "extras_require": {
         "tests": [
