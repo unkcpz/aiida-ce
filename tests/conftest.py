@@ -11,6 +11,8 @@ from aiida_ce.workflows.create_ce import StructureDbData
 
 from . import TEST_DIR
 
+pytest_plugins = ['aiida.manage.tests.pytest_fixtures']  # pylint: disable=invalid-name
+
 
 @pytest.fixture
 def generate_ase_structure():

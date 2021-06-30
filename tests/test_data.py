@@ -11,8 +11,6 @@ from aiida import orm
 from aiida_ce.workflows.create_ce import StructureDbData
 from . import TEST_DIR
 
-pytest_plugins = ['aiida.manage.tests.pytest_fixtures']  # pylint: disable=invalid-name
-
 ClusterSpaceData = DataFactory('cluster_space')
 ClusterExpansionData = DataFactory('cluster_expansion')
 StructureDbData = DataFactory('structure_db')

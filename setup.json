@@ -33,7 +33,7 @@
         ],
         "aiida.workflows": [
             "construct_ce = aiida_ce.workflows.create_ce:ConstructClusterExpansion",
-            "icet.sqs = aiida_ce.workflows.sqs:SqsWorkChain"
+            "icet.mcsqs = aiida_ce.workflows.sqs:IcetMcsqsWorkChain"
         ]
     },
     "include_package_data": true,

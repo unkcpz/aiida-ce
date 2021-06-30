@@ -9,7 +9,7 @@ from aiida.plugins import WorkflowFactory, DataFactory
 ClusterSpaceData = DataFactory('cluster_space')
 ClusterExpansionData = DataFactory('cluster_expansion')
 ConstructClusterExpansion = WorkflowFactory('construct_ce')
-IcetSqsWorkChain = WorkflowFactory('icet.sqs')
+IcetMcsqsWorkChain = WorkflowFactory('icet.mcsqs')
 
 # ConstructClusterExpansion
 
@@ -18,10 +18,12 @@ IcetSqsWorkChain = WorkflowFactory('icet.sqs')
 def test_construct_ce_default(structure_db, primitive_structure):
     """test default"""
     inputs = {
-        'primitive_structure': primitive_structure,
+        'cluster_space': {
+            'primitive_structure': primitive_structure,
+            'cutoffs': orm.List(list=[13.5, 6.0, 5.5]),
+            'chemical_symbols': orm.List(list=['Ag', 'Pd']),
+        },
         'structure_db': structure_db,
-        'cutoffs': orm.List(list=[13.5, 6.0, 5.5]),
-        'chemical_symbols': orm.List(list=['Ag', 'Pd']),
         'fit_data_key': orm.Str('mixing_energy'),
         'fit_method': orm.Str('lasso')
     }
@@ -34,14 +36,19 @@ def test_construct_ce_default(structure_db, primitive_structure):
 
 
 @pytest.mark.usefixtrue('clear_database_before_test')
-def test_icet_sqs_default(cluster_space_aupd, supercell):
+def test_icet_sqs_default():
     """test default"""
-    cluster_space_data = ClusterSpaceData()
-    cluster_space_data.set_from_cluster_space(cluster_space_aupd)
+    from ase.build import bulk
+
+    primitive_structure = orm.StructureData(ase=bulk('Au'))
 
     inputs = {
-        'cluster_space': cluster_space_data,
-        'supercell': supercell,
+        'cluster_space': {
+            'primitive_structure': primitive_structure,
+            'cutoffs': orm.List(list=[8.0, 4.0]),
+            'chemical_symbols': orm.List(list=[['Au', 'Pd']]),
+        },
+        'supercell': orm.StructureData(ase=bulk('Au').repeat((1, 2, 4))),
         'n_steps': orm.Int(1000),
         'random_seed': orm.Int(1234),
         'target_concentrations': orm.Dict(dict={
@@ -50,7 +57,7 @@ def test_icet_sqs_default(cluster_space_aupd, supercell):
         })
     }
 
-    res, node = run_get_node(IcetSqsWorkChain, **inputs)
+    res, node = run_get_node(IcetMcsqsWorkChain, **inputs)
 
     assert node.is_finished_ok
     assert 'output_cluster_vector' in res

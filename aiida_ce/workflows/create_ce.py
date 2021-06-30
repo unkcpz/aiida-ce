@@ -2,8 +2,10 @@
 """ce create"""
 from icet import StructureContainer, CrossValidationEstimator
 from aiida import orm
-from aiida.engine import WorkChain
+from aiida.engine import WorkChain, run_get_node
 from aiida.plugins import DataFactory
+
+from . import _create_cluster_space
 
 StructureDbData = DataFactory('structure_db')
 ClusterExpansionData = DataFactory('cluster_expansion')
@@ -11,20 +13,15 @@ ClusterSpaceData = DataFactory('cluster_space')
 
 
 class ConstructClusterExpansion(WorkChain):
-    """WorkChain to construct cluster expansion using a db(TODO to a specific datatype)"""
+    """WorkChain to construct cluster expansion using a db"""
     @classmethod
     def define(cls, spec):
         """Define the process spec"""
         # yapf: disable
         super().define(spec)
-        spec.input('primitive_structure', valid_type=orm.StructureData,
-                   help='The primitive structure used to create cluster space')
+        spec.expose_inputs(_create_cluster_space, namespace='cluster_space')
         spec.input('structure_db', valid_type=StructureDbData,
                    help='reference data contain structures and their properties.')
-        spec.input('cutoffs', valid_type=orm.List,
-                   help='cutoff radii per order that define the cluster space.')
-        spec.input('chemical_symbols', valid_type=orm.List,
-                   help='list of chemical symbols.')
         spec.input('fit_data_key', valid_type=orm.Str, default=lambda: orm.Str('mixing_energy'),
                    help='The key of target properties for all structures.')
         spec.input('fit_method', valid_type=orm.Str, default=lambda: orm.Str('lasso'),
@@ -42,21 +39,13 @@ class ConstructClusterExpansion(WorkChain):
 
     def setup(self):
         """setup the ctx parameters"""
-        self.ctx.cutoffs = self.inputs.cutoffs.get_list()
-        self.ctx.chemical_symbols = self.inputs.chemical_symbols.get_list()
         self.ctx.fit_data_key = self.inputs.fit_data_key.value
         self.ctx.fit_method = self.inputs.fit_method.value
 
     def create_cluster_space(self):
         """create cluster space with icet and store it as a cluster space data type"""
-        primitive_structure = self.inputs.primitive_structure.get_ase()  # primitive structure
-
-        cs_data = ClusterSpaceData()
-        cs_data.set(ase=primitive_structure,
-                    cutoffs=self.ctx.cutoffs,
-                    chemical_symbols=self.ctx.chemical_symbols)
-
-        self.ctx.cluster_space = cs_data
+        self.ctx.cluster_space, _ = run_get_node(_create_cluster_space,
+                              **self.exposed_inputs(_create_cluster_space, namespace='cluster_space'))
 
     def train(self):
         """train and store cluster expansion data type"""
