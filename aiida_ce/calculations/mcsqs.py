@@ -2,7 +2,6 @@
 """
 Calculations of ATAT mcsqs.
 """
-from __future__ import absolute_import
 from aiida.engine import CalcJob
 from aiida.common import CodeInfo, CalcInfo, CodeRunMode
 
@@ -13,16 +12,24 @@ class AtatMcsqsCalculation(CalcJob):
     """
     Calculation Job of mcsqs
     """
+    _valid_mcsqs_params = ['tol', 'wr', 'wn', 'wd', 'T']
+
     @classmethod
     def define(cls, spec):
         #yapf: disable
         super().define(spec)
-        spec.input('primitive_structure', valid_type=orm.StructureData,
-                   help='primitive structure with fraction atom weight in sites.')
-        spec.input('sqscell', valid_type=orm.StructureData,
-                   help='sqscell receieve a StructureData and read its cell.')
         spec.input('code_corrdump', valid_type=orm.Code,
                    help='The `Code` to run corrdump before mcsqs.')
+        spec.input('primitive_structure', valid_type=orm.StructureData,
+                   help='primitive structure with fraction atom weight in sites.')
+        spec.input('supercell', valid_type=orm.StructureData,
+                   help='sqscell receieve a StructureData and read its cell.')
+        spec.input('cutoffs', valid_type=orm.List,
+                   help='cutoff distance of different order particles.')
+        spec.input('random_seed', valid_type=orm.Int, default=lambda: orm.Int(1234),
+                    help='seed for the random number generator used in the Monte Carlo simulation')
+        spec.input('parameters', valid_type=orm.Dict, required=False,
+                   help='option parameters for mcsqs.')
 
         spec.output('bestsqs', valid_type=orm.StructureData, help='sqs structure file')
         spec.output('bestcorr', valid_type=orm.Float, help='bestcorr of sqs')
@@ -35,6 +42,18 @@ class AtatMcsqsCalculation(CalcJob):
         spec.input('metadata.options.output_bestsqs_filename', valid_type=str, default='bestsqs.out')
         spec.input('metadata.options.output_bestcorr_filename', valid_type=str, default='bestcorr.out')
 
+    def _get_cmdline_params(self):
+        """cmdline params"""
+        params = ['-rc']
+        params.append(f'-sd={self.inputs.random_seed.value}')
+
+        more_params = self.inputs.parameters.get_dict()
+        for key, value in more_params.items():
+            if key in self._valid_mcsqs_params:
+                params.append(f'-{key}={value}')
+
+        return params
+
     def prepare_for_submission(self, folder):
         """
         In preparing the inputs of mcsqs, first generate a clusters.out which
@@ -44,19 +63,25 @@ class AtatMcsqsCalculation(CalcJob):
         with folder.open(self.options.input_rndstr_filename, 'w', encoding='utf8') as handle:
             handle.write(rndstr)
 
-        sqscellstr = self._generate_sqscell(self.inputs.sqscell)
+        sqscellstr = self._generate_sqscell(self.inputs.supercell)
         with folder.open(self.options.input_sqscell_filename, 'w', encoding='utf8') as handle:
             handle.write(sqscellstr)
 
         helpercodeinfo = CodeInfo()
         helpercodeinfo.code_uuid = self.inputs.code_corrdump.uuid
-        helpercodeinfo.cmdline_params = ['-ro', '-noe', '-nop', '-clus', '-2=1.1',
-                                         f'-l={self.options.input_rndstr_filename}']
+
+        cmdline_cutoff = []
+        for idx, cutoff in enumerate(self.inputs.cutoffs.get_list()):
+            cmdline_cutoff.append(f'-{idx+2}={cutoff}')
+
+        helpercodeinfo.cmdline_params = ['-ro', '-noe', '-nop', '-clus',
+                                        f'-l={self.options.input_rndstr_filename}'] + cmdline_cutoff
+
         helpercodeinfo.withmpi = False
 
         codeinfo = CodeInfo()
         codeinfo.code_uuid = self.inputs.code.uuid
-        codeinfo.cmdline_params = ['-rc', '-sd=1234']
+        codeinfo.cmdline_params = self._get_cmdline_params()
         codeinfo.withmpi = False
 
         calcinfo = CalcInfo()

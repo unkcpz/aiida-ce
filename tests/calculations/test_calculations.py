@@ -80,6 +80,7 @@ def fixture_code(fixture_localhost):
 def generate_inputs(fixture_code):
     """Generate inputs for calculation"""
     def _generate_inputs(entry_point_name):
+        # yapf: disable
 
         # input primitive structure
         primitive_structure = orm.StructureData(
@@ -102,14 +103,16 @@ def generate_inputs(fixture_code):
 
         if entry_point_name == 'atat.mcsqs':
             inputs = {
-                'code':
-                fixture_code('atat.mcsqs'),
-                'code_corrdump':
-                fixture_code('atat.corrdump', entry_point_name='atat.mcsqs'),
-                'primitive_structure':
-                primitive_structure,
-                'sqscell':
-                supercell,
+                'code': fixture_code('atat.mcsqs'),
+                'code_corrdump': fixture_code('atat.corrdump', entry_point_name='atat.mcsqs'),
+                'primitive_structure': primitive_structure,
+                'supercell': supercell,
+                'cutoffs': orm.List(list=[1.1]),
+                'parameters': orm.Dict(dict={
+                   'T': 1,
+                   'wd': 0,
+                   'wr': 1,
+                }),
             }
 
         return inputs
@@ -141,3 +144,10 @@ def test_atat_mcsqs_default(fixture_sandbox, generate_calc_job,
                           encoding='utf-8',
                           extension='.in',
                           basename='sqscell')
+
+    # check cmdline parameters of two codes
+    corrdump = calc_info['codes_info'][0]
+    corrdump['cmdline_params'] = ['-ro', '-noe', '-nop', '-clus', '-l=rndstr.in', '-2=1.1']
+
+    mcsqs = calc_info['codes_info'][1]
+    mcsqs['cmdline_parames'] = ['-rc', '-sd=1234', '-T=1', '-wd=0', '-wr=1']
